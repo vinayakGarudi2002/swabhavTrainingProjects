@@ -1,0 +1,52 @@
+<%@page import="com.aurionpro.model.User"%>
+<%@page import="com.aurionpro.database.DbConnection"%>
+<%@page import="java.sql.Connection"%>
+<%@ page import="com.aurionpro.model.CustomerComponent" %>
+<%@ page import="com.aurionpro.operation.CustomerOperation" %>
+<%@ page import="javax.servlet.http.HttpSession" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile</title>
+    <script type="text/javascript">
+        function enablePasswordField() {
+            document.getElementById("password").style.display = "block";
+            document.getElementById("submitButton").style.display = "block";
+            document.getElementById("cancelButton").style.display = "block";
+        }
+    </script>
+</head>
+<body>
+    <%
+        
+        User user =(User)session.getAttribute("user");
+        int userId = user.getUserId();
+        Connection connection = DbConnection.connectToDb();
+        CustomerOperation customerOperation = new CustomerOperation(connection);
+        CustomerComponent customer = customerOperation.getCustomerById(userId);
+
+        if (customer != null) {
+    %>
+        <h2>Edit Profile</h2>
+        <form action="EditProfileServlet" method="post">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" value="<%= customer.getFirstName() %>" oninput="enablePasswordField()"><br><br>
+            
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" value="<%= customer.getLastName() %>" oninput="enablePasswordField()"><br><br>
+            
+            <label for="password" style="display:none;">Password:</label>
+            <input type="password" id="password" name="password" style="display:none;"><br><br>
+            
+            <input type="submit" id="submitButton" value="Submit" style="display:none;">
+            <button type="button" id="cancelButton" style="display:none;" onclick="window.location.href='customerOperation.jsp'">Cancel</button>
+        </form>
+    <%
+        } else {
+            out.println("Customer not found.");
+        }
+    %>
+</body>
+</html>

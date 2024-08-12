@@ -1,0 +1,45 @@
+package com.aurionpro.test;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import com.aurionpro.database.DbConnection;
+import com.aurionpro.model.Customer;
+import com.aurionpro.model.CustomerComponent;
+import com.aurionpro.operation.CustomerOperation;
+
+public class CustomerOperationTest {
+
+    public static void main(String[] args) {
+        DbConnection dbConnection = new DbConnection();
+        Connection connection = null;
+
+        try {
+            // Establish the database connection
+            connection = dbConnection.connectToDb();
+
+            // Initialize the CustomerOperation class with the connection
+            CustomerOperation customerOperation = new CustomerOperation(connection);
+
+     
+
+            // Test: Delete the customer by email
+            customerOperation.deleteCustomerByEmail("john.doe@example.com");
+            System.out.println("Customer deleted successfully.");
+
+            // Verify delete by attempting to retrieve the deleted customer
+            CustomerComponent deletedCustomer = customerOperation.getCustomerByEmail("john.doe@example.com");
+            if (deletedCustomer == null) {
+                System.out.println("Customer deletion confirmed.");
+            } else {
+                System.out.println("Customer still exists after deletion.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Close the database connection
+            dbConnection.closeConnection(connection);
+        }
+    }
+}

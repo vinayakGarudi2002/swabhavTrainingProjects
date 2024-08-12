@@ -1,0 +1,229 @@
+package com.aurionpro.model;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Random;
+
+public class AccountOperation {
+
+    private Connection connection;
+
+    // Constructor to initialize the database connection
+    public AccountOperation(Connection connection) {
+        this.connection = connection;
+    }
+
+    // Method to generate a random 12-digit account number
+    public long accountNumberGenerator() {
+        Random random = new Random();
+        long accountNumber = 100000000000L + (long) (random.nextDouble() * 900000000000L);
+        return accountNumber;
+    }
+
+    // CRUD Operations
+
+    // Create a new account
+    public String createAccount(AccountComponent account) {
+    	if(accountAlreadyExist(account.getAccountNo())){
+    		return "Account Already Exist";
+    	};
+    	
+        String sql = "INSERT INTO account (account_no, balance, user_id) VALUES (?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setLong(1, account.getAccountNo());
+            pstmt.setDouble(2, account.getBalance());
+            pstmt.setInt(3, account.getUserId());
+            pstmt.executeUpdate();
+            System.out.println("Account created successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Read an account by account number
+    public AccountComponent getAccountByNumber(long accountNo) {
+        String sql = "SELECT * FROM account WHERE account_no = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setLong(1, accountNo);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                long accNo = rs.getLong("account_no");
+                double balance = rs.getDouble("balance");
+                int userId = rs.getInt("user_id");
+                return new Account(accNo, balance, userId);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Update an account's balance
+    public void updateAccountBalance(long accountNo, double newBalance) {
+        String sql = "UPDATE account SET balance = ? WHERE account_no = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setDouble(1, newBalance);
+            pstmt.setLong(2, accountNo);
+            pstmt.executeUpdate();
+            System.out.println("Account balance updated successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Delete an account by account number
+    public void deleteAccount(long accountNo) {
+        String sql = "DELETE FROM account WHERE account_no = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setLong(1, accountNo);
+            pstmt.executeUpdate();
+            System.out.println("Account deleted successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    // Credit amount to account
+    public String credit(long accountNo, double amount) {
+        if (amount <= 0) {
+            return "Invalid amount. Please enter a positive value.";
+        }
+
+        try {
+            AccountComponent account = getAccountByNumber(accountNo);
+            if (account != null) {
+                double newBalance = account.getBalance() + amount;
+                updateAccountBalance(accountNo, newBalance);
+                addTransaction(accountNo, null, amount, 1); // Assuming 1 is the transactionType_id for credit
+                return "Amount credited successfully.";
+            } else {
+                return "Account not found.";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "An error occurred during the credit operation.";
+        }
+    }
+
+    // Debit amount from account
+    public String debit(long accountNo, double amount) {
+        if (amount <= 0) {
+            return "Invalid amount. Please enter a positive value.";
+        }
+
+        try {
+            AccountComponent account = getAccountByNumber(accountNo);
+            if (account != null) {
+                if (account.getBalance() >= amount) {
+                    double newBalance = account.getBalance() - amount;
+                    updateAccountBalance(accountNo, newBalance);
+                    addTransaction(accountNo, null, amount, 2); // Assuming 2 is the transactionType_id for debit
+                    return "Amount debited successfully.";
+                } else {
+                    return "Insufficient balance.";
+                }
+            } else {
+                return "Account not found.";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "An error occurred during the debit operation.";
+        }
+    }
+
+    // Method to transfer amount from one account to another
+    public String accountTransferTransaction(long fromAccountNo, long toAccountNo, double amount) {
+        if (amount <= 0) {
+            return "Invalid amount. Please enter a positive value.";
+        }
+
+        try {
+            // Start transaction
+            connection.setAutoCommit(false);
+
+            // Debit from the sender's account
+            AccountComponent fromAccount = getAccountByNumber(fromAccountNo);
+            if (fromAccount == null) {
+                return "Sender's account not found.";
+            }
+            if (fromAccount.getBalance() < amount) {
+                return "Insufficient balance in sender's account.";
+            }
+            double newSenderBalance = fromAccount.getBalance() - amount;
+            updateAccountBalance(fromAccountNo, newSenderBalance);
+
+            // Credit to the receiver's account
+            AccountComponent toAccount = getAccountByNumber(toAccountNo);
+            if (toAccount == null) {
+                return "Receiver's account not found.";
+            }
+            double newReceiverBalance = toAccount.getBalance() + amount;
+            updateAccountBalance(toAccountNo, newReceiverBalance);
+
+            // Log transaction in the database
+            addTransaction(fromAccountNo, toAccountNo, amount, 3); // Assuming 3 is the transactionType_id for transfer
+
+            // Commit transaction
+            connection.commit();
+            connection.setAutoCommit(true);
+
+            return "Amount transferred successfully.";
+        } catch (Exception e) {
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackException) {
+                rollbackException.printStackTrace();
+            }
+            e.printStackTrace();
+            return "An error occurred during the transfer operation.";
+        }
+    }
+
+    // Method to add a transaction record to the transactions table
+    private void addTransaction(Long senderAccNo, Long receiverAccNo, double amount, int transactionTypeId) {
+        String sql = "INSERT INTO transactions (sender_accno, reciver_accno, amount, date, transactionType_id) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setObject(1, senderAccNo, java.sql.Types.BIGINT);
+            pstmt.setObject(2, receiverAccNo, java.sql.Types.BIGINT);
+            pstmt.setDouble(3, amount);
+            pstmt.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+            pstmt.setInt(5, transactionTypeId);
+            pstmt.executeUpdate();
+            System.out.println("Transaction logged in database: Type - " + transactionTypeId + ", Amount - " + amount);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ArrayList<Long> getAccountNumbersByUserId(int userId) {
+        ArrayList<Long> accountNumbers = new ArrayList<>();
+        String sql = "SELECT account_no FROM account WHERE user_id = ?";
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                accountNumbers.add(rs.getLong("account_no"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return accountNumbers;
+    }
+    
+    public boolean accountAlreadyExist(long accountNo) {
+    	
+    	if(getAccountByNumber(accountNo)!=null) {
+    		return true;
+    	}
+    	
+    	return false;
+    	
+    }
+}

@@ -1,0 +1,79 @@
+package com.aurionpro.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.aurionpro.database.DbConnection;
+import com.aurionpro.model.Account;
+import com.aurionpro.model.AccountComponent;
+import com.aurionpro.model.AccountOperation;
+import com.aurionpro.model.Customer;
+import com.aurionpro.model.CustomerComponent;
+import com.aurionpro.operation.CustomerOperation;
+
+/**
+ * Servlet implementation class AddAccountServlet
+ */
+@WebServlet("/AddAccountServlet")
+public class AddAccountServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public AddAccountServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+    
+
+
+    private CustomerOperation customerOperation = null;
+    private AccountOperation accountOperation = null;
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	
+    	Connection connection = null;
+
+        connection = DbConnection.connectToDb();
+        customerOperation = new CustomerOperation(connection);
+        accountOperation = new AccountOperation(connection);
+        String action = request.getParameter("action");
+
+        if ("getUserIds".equals(action)) {
+            // Fetch user IDs of customers without an account
+            List<Integer> userIds = customerOperation.getCustomersWithoutAccount();
+            request.setAttribute("userIds", userIds);
+        } else if ("getCustomerDetails".equals(action)) {
+            int userId = Integer.parseInt(request.getParameter("userId"));
+            CustomerComponent customer = customerOperation.getCustomerById(userId);
+            request.setAttribute("customer", customer);
+            request.getRequestDispatcher("addCustomer.jsp").forward(request, response);
+        } else if ("generateAccountNumber".equals(action)) {
+            int userId = Integer.parseInt(request.getParameter("userId"));
+            long accountNumber = accountOperation.accountNumberGenerator();
+            request.setAttribute("accountNumber", accountNumber);
+            request.getRequestDispatcher("addCustomer.jsp").forward(request, response);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int userId = Integer.parseInt(request.getParameter("userId"));
+        long accountNumber = Long.parseLong(request.getParameter("accountNumber"));
+        
+        // Logic to create account
+        AccountComponent newAccount = new Account(accountNumber, 0.00, userId); 
+        accountOperation.createAccount(newAccount);
+        response.sendRedirect("adminDashboard.jsp");
+    }
+
+}

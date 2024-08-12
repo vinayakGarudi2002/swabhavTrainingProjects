@@ -1,0 +1,99 @@
+package com.aurionpro.test;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import com.aurionpro.database.DbConnection;
+import com.aurionpro.model.Account;
+import com.aurionpro.model.AccountComponent;
+import com.aurionpro.model.AccountOperation;
+
+public class AccountOperationTest {
+
+    public static void main(String[] args) {
+        DbConnection dbConnection = new DbConnection();
+        Connection connection = null;
+
+        try {
+            // Establish the database connection
+            connection = dbConnection.connectToDb();
+
+            // Initialize the AccountOperation class with the connection
+            AccountOperation accountOperation = new AccountOperation(connection);
+
+            // Generate a new account number
+//            long newAccountNo = accountOperation.accountNumberGenerator();
+//            System.out.println("Generated Account Number: " + newAccountNo);
+//
+//            // Create a new account
+//            AccountComponent newAccount = new Account(newAccountNo, 1000.00, 2); // Example userId = 1
+//            accountOperation.createAccount(newAccount);
+//            System.out.println("Account created successfully.");
+//
+//            // Read the account by account number
+//            AccountComponent retrievedAccount = accountOperation.getAccountByNumber(newAccountNo);
+//            if (retrievedAccount != null) {
+//                System.out.println("Account retrieved successfully: ");
+//                System.out.println("Account Number: " + retrievedAccount.getAccountNo());
+//                System.out.println("Balance: " + retrievedAccount.getBalance());
+//                System.out.println("User ID: " + retrievedAccount.getUserId());
+//            } else {
+//                System.out.println("Account not found.");
+//            }
+//
+//            // Update the account's balance
+//            double newBalance = 2000.00;
+//            accountOperation.updateAccountBalance(newAccountNo, newBalance);
+//            System.out.println("Account balance updated successfully.");
+//
+//            // Verify the update by retrieving the updated account
+//            AccountComponent updatedAccount = accountOperation.getAccountByNumber(newAccountNo);
+//            if (updatedAccount != null) {
+//                System.out.println("Updated Account: ");
+//                System.out.println("Account Number: " + updatedAccount.getAccountNo());
+//                System.out.println("New Balance: " + updatedAccount.getBalance());
+//                System.out.println("User ID: " + updatedAccount.getUserId());
+//            }
+//
+//            // Delete the account by account number
+//            accountOperation.deleteAccount(newAccountNo);
+//            System.out.println("Account deleted successfully.");
+//
+//            // Verify deletion by attempting to retrieve the deleted account
+//            AccountComponent deletedAccount = accountOperation.getAccountByNumber(newAccountNo);
+//            if (deletedAccount == null) {
+//                System.out.println("Account deletion confirmed.");
+//            } else {
+//                System.out.println("Account still exists after deletion.");
+//            }
+            
+            AccountComponent accountNo1 = accountOperation.getAccountByNumber(737057453831l);
+            AccountComponent accountNo2 = accountOperation.getAccountByNumber(840426263779l);
+            
+//            // Test credit operation
+//            System.out.println("Credit Operation: ");
+//            String creditResult = accountOperation.credit(accountNo1.getAccountNo(), 1500.00);
+//            System.out.println(creditResult);
+//            System.out.println("Balance after credit: " + accountOperation.getAccountByNumber(737057453831l).getBalance());
+
+            // Test debit operation
+//            System.out.println("\nDebit Operation: ");
+//            String debitResult = accountOperation.debit(accountNo1.getAccountNo(), 500.00);
+//            System.out.println(debitResult);
+//            System.out.println("Balance after debit: " + accountOperation.getAccountByNumber(737057453831l).getBalance());
+//
+//            // Test account transfer operation
+            System.out.println("\nAccount Transfer Operation: ");
+           // String transferResult = accountOperation.accountTransferTransaction(accountNo1.getAccountNo(), accountNo2.getAccountNo(), 2000.00);
+            //System.out.println(transferResult);
+            System.out.println("Balance of sender after transfer: " + accountNo1.getBalance());
+            System.out.println("Balance of receiver after transfer: " + accountNo2.getBalance());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Close the database connection
+            dbConnection.closeConnection(connection);
+        }
+    }
+}

@@ -1,0 +1,45 @@
+package com.aurionpro.operation;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.aurionpro.model.TransactionView;
+
+public class TransactionViewOperation {
+    private Connection connection;
+
+    public TransactionViewOperation(Connection connection) {
+        this.connection = connection;
+    }
+
+    public List<TransactionView> fetchAllTransactionViews() {
+        List<TransactionView> transactionViews = new ArrayList<>();
+        String query = "SELECT t.transaction_id, t.sender_accno, t.reciver_accno, tt.transactionType_name, t.amount, t.date " +
+                       "FROM transactions t " +
+                       "JOIN transaction_types tt ON t.transactionType_id = tt.transactionType_id";
+        
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+            
+            while (resultSet.next()) {
+                int transactionId = resultSet.getInt("transaction_id");
+                long senderAccount = resultSet.getLong("sender_account_no");
+                long receiverAccount = resultSet.getLong("receiver_account_no");
+                String typeOfTransaction = resultSet.getString("type_name");
+                double amount = resultSet.getDouble("amount");
+                Date transactionDate = resultSet.getDate("transaction_date");
+                
+                TransactionView transactionView = new TransactionView(transactionId, senderAccount, receiverAccount, typeOfTransaction, amount, transactionDate);
+                transactionViews.add(transactionView);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return transactionViews;
+    }
+}

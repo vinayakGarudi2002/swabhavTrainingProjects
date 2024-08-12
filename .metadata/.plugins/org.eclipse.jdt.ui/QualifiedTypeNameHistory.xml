@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="com.aurionpro.model.CustomerComponent"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="com.aurionpro.operation.CustomerViewOperation"/>
+<fullyQualifiedTypeName name="java.sql.Timestamp"/>
+<fullyQualifiedTypeName name="com.aurionpro.model.AccountOperation"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="javax.servlet.http.HttpSession"/>
+<fullyQualifiedTypeName name="com.aurionpro.model.TransactionView"/>
+<fullyQualifiedTypeName name="java.sql.Connection"/>
+<fullyQualifiedTypeName name="com.aurionpro.model.User"/>
+<fullyQualifiedTypeName name="com.aurionpro.database.DbConnection"/>
+<fullyQualifiedTypeName name="com.aurionpro.model.Customer"/>
+<fullyQualifiedTypeName name="com.aurionpro.model.PasswordValidator"/>
+<fullyQualifiedTypeName name="com.aurionpro.model.ValidationContext"/>
+</qualifiedTypeNameHistroy>

@@ -1,0 +1,78 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Add Customer Account</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Add Account for Customer</h2>
+
+    <!-- Button to fetch user IDs -->
+    <button id="fetchUserIds">Fetch Customers</button>
+
+    <div id="customerSelection">
+        <!-- Dropdown to select customer -->
+        <form method="get" action="AddAccountServlet">
+            <label for="userId">Select Customer:</label>
+            <select name="userId" id="userId">
+                <!-- Options will be populated by jQuery -->
+            </select>
+            <button type="submit" name="action" value="getCustomerDetails">View Customer</button>
+        </form>
+
+        <!-- Display message if no customers available -->
+        <p id="noCustomersMessage" style="display:none;">No customers available to create an account.</p>
+    </div>
+
+    <!-- Display selected customer details -->
+    <c:if test="${not empty customer}">
+        <h3>Customer Details:</h3>
+        <p>First Name: ${customer.firstName}</p>
+        <p>Last Name: ${customer.lastName}</p>
+        <p>Email: ${customer.email}</p>
+
+        <!-- Button to generate account number -->
+        <form method="get" action="AddAccountServlet">
+            <input type="hidden" name="userId" value="${customer.userId}">
+            <button type="submit" name="action" value="generateAccountNumber">Generate Account Number</button>
+        </form>
+    </c:if>
+
+    <!-- Display generated account number and submit -->
+    <c:if test="${not empty accountNumber}">
+        <h3>Generated Account Number: ${accountNumber}</h3>
+
+        <!-- Final form to create the account -->
+        <form method="post" action="AddAccountServlet">
+            <input type="hidden" name="userId" value="${customer.userId}">
+            <input type="hidden" name="accountNumber" value="${accountNumber}">
+            <button type="submit">Submit</button>
+        </form>
+    </c:if>
+
+    <script>
+        $(document).ready(function() {
+            $('#fetchUserIds').click(function() {
+                $.ajax({
+                    url: 'AddAccountServlet',
+                    type: 'GET',
+                    data: { action: 'getUserIds' },
+                    success: function(response) {
+                        var userIds = $(response).find('#userIds').html();
+                        if (userIds.trim() === '') {
+                            $('#noCustomersMessage').show();
+                            $('#userId').empty();
+                        } else {
+                            $('#noCustomersMessage').hide();
+                            $('#userId').html(userIds);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

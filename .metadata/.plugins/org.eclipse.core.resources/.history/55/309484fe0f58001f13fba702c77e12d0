@@ -1,0 +1,61 @@
+package com.aurionpro.servlet;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class EditProfileServlet
+ */
+@WebServlet("/EditProfileServlet")
+public class EditProfileServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public EditProfileServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		response.getWriter().append("Served at: ").append(request.getContextPath());
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        int userId = (int) session.getAttribute("user_id");
+        String sessionPassword = (String) session.getAttribute("password");
+
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        String password = request.getParameter("password");
+
+        CustomerOperation customerOperation = new CustomerOperation((Connection) session.getAttribute("connection"));
+        CustomerComponent customer = customerOperation.getCustomerById(userId);
+
+        if (customer != null) {
+            if (sessionPassword.equals(password)) {
+                customer.setFirstName(firstName);
+                customer.setLastName(lastName);
+                customerOperation.updateCustomer(customer);
+                session.setAttribute("password", password);
+                response.sendRedirect("customerDashboard.jsp");
+            } else {
+                request.setAttribute("errorMessage", "Incorrect password.");
+                request.getRequestDispatcher("editProfile.jsp").forward(request, response);
+            }
+        } else {
+            response.sendRedirect("login.jsp");
+        }
+    }
+
+}

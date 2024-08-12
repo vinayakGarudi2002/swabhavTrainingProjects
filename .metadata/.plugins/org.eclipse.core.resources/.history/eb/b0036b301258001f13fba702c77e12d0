@@ -1,0 +1,76 @@
+package com.aurionpro.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.aurionpro.model.Customer;
+import com.aurionpro.model.CustomerComponent;
+import com.aurionpro.model.User;
+import com.aurionpro.operation.CustomerOperation;
+
+/**
+ * Servlet implementation class EditProfileServlet
+ */
+@WebServlet("/EditProfileServlet")
+public class EditProfileServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public EditProfileServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		response.getWriter().append("Served at: ").append(request.getContextPath());
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        
+        User user =(User)session.getAttribute("user");
+        int userId = user.getUserId();
+        String sessionPassword = user.getPassword();
+
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        String password = request.getParameter("password");
+
+        CustomerOperation customerOperation = new CustomerOperation((Connection) session.getAttribute("connection"));
+        CustomerComponent customer = customerOperation.getCustomerById(userId);
+
+        if (customer != null) {
+            if (sessionPassword.equals(password)) {
+            	 CustomerComponent updatedCustomer=new Customer(firstName,lastName,customer.getEmail(),customer.getPassword());
+                try {
+					customerOperation.updateCustomer(updatedCustomer);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+                
+                response.sendRedirect("customerOperation.jsp");
+            } else {
+                request.setAttribute("errorMessage", "Incorrect password.");
+                request.getRequestDispatcher("editProfile.jsp").forward(request, response);
+            }
+        } else {
+            response.sendRedirect("login.jsp");
+        }
+    }
+
+}

@@ -1,0 +1,24 @@
+package com.aurionpro.test;
+
+import com.aurionpro.model.EmailValidator;
+import com.aurionpro.model.PasswordValidator;
+import com.aurionpro.model.ValidationContext;
+
+public class ValidatorTest {
+
+	public static void main(String[] args) {
+		 ValidationContext context = new ValidationContext();
+
+	        // Test Email Validation
+	        context.setValidator(new EmailValidator());
+	        String emailResult = context.validate("test@example.com");
+	        System.out.println("Email Validation: " + emailResult);
+
+	        // Test Password Validation
+	        context.setValidator(new PasswordValidator());
+	        String passwordResult = context.validate("Password@123");
+	        System.out.println("Password Validation: " + passwordResult)
+
+	}
+
+}

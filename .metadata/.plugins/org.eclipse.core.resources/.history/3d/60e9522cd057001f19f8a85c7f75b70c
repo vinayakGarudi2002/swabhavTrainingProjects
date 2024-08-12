@@ -1,0 +1,50 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Add Customer Account</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Add Account for Customer</h2>
+
+    <!-- Dropdown to select customer -->
+    <form method="get" action="AddAccountServlet">
+        <label for="userId">Select Customer:</label>
+        <select name="userId" id="userId">
+            <c:forEach var="userId" items="${userIds}">
+                <option value="${userId}">${userId}</option>
+            </c:forEach>
+        </select>
+        <button type="submit" name="action" value="getCustomerDetails">View Customer</button>
+    </form>
+
+    <!-- Display selected customer details -->
+    <c:if test="${not empty customer}">
+        <h3>Customer Details:</h3>
+        <p>First Name: ${customer.firstName}</p>
+        <p>Last Name: ${customer.lastName}</p>
+        <p>Email: ${customer.email}</p>
+
+        <!-- Button to generate account number -->
+        <form method="get" action="AddCustomerServlet">
+            <input type="hidden" name="userId" value="${customer.userId}">
+            <button type="submit" name="action" value="generateAccountNumber">Generate Account Number</button>
+        </form>
+    </c:if>
+
+    <!-- Display generated account number and submit -->
+    <c:if test="${not empty accountNumber}">
+        <h3>Generated Account Number: ${accountNumber}</h3>
+
+        <!-- Final form to create the account -->
+        <form method="post" action="AddCustomerServlet">
+            <input type="hidden" name="userId" value="${customer.userId}">
+            <input type="hidden" name="accountNumber" value="${accountNumber}">
+            <button type="submit">Submit</button>
+        </form>
+    </c:if>
+</body>
+</html>

@@ -1,0 +1,141 @@
+package com.aurionpro.model;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Random;
+
+public class AccountOperation {
+
+    private Connection connection;
+
+    // Constructor to initialize the database connection
+    public AccountOperation(Connection connection) {
+        this.connection = connection;
+    }
+
+    // Method to generate a random 12-digit account number
+    public long accountNumberGenerator() {
+        Random random = new Random();
+        long accountNumber = 100000000000L + (long) (random.nextDouble() * 900000000000L);
+        return accountNumber;
+    }
+
+    // CRUD Operations
+
+    // Create a new account
+    public void createAccount(AccountComponent account) {
+        String sql = "INSERT INTO account (account_no, balance, user_id) VALUES (?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setLong(1, account.getAccountNo());
+            pstmt.setDouble(2, account.getBalance());
+            pstmt.setInt(3, account.getUserId());
+            pstmt.executeUpdate();
+            System.out.println("Account created successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Read an account by account number
+    public AccountComponent getAccountByNumber(long accountNo) {
+        String sql = "SELECT * FROM account WHERE account_no = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setLong(1, accountNo);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                long accNo = rs.getLong("account_no");
+                double balance = rs.getDouble("balance");
+                int userId = rs.getInt("user_id");
+                return new Account(accNo, balance, userId);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Update an account's balance
+    public void updateAccountBalance(long accountNo, double newBalance) {
+        String sql = "UPDATE account SET balance = ? WHERE account_no = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setDouble(1, newBalance);
+            pstmt.setLong(2, accountNo);
+            pstmt.executeUpdate();
+            System.out.println("Account balance updated successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Delete an account by account number
+    public void deleteAccount(long accountNo) {
+        String sql = "DELETE FROM account WHERE account_no = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setLong(1, accountNo);
+            pstmt.executeUpdate();
+            System.out.println("Account deleted successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+ // Credit amount to account
+    public String credit(long accountNo, double amount) {
+        if (amount <= 0) {
+            return "Invalid amount. Please enter a positive value.";
+        }
+
+        try {
+            AccountComponent account = getAccountByNumber(accountNo);
+            if (account != null) {
+                double newBalance = account.getBalance() + amount;
+                updateAccountBalance(accountNo, newBalance);
+                // Log the transaction
+                logTransaction(accountNo, amount, "CREDIT");
+                return "Amount credited successfully.";
+            } else {
+                return "Account not found.";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "An error occurred during the credit operation.";
+        }
+    }
+
+    // Debit amount from account
+    public String debit(long accountNo, double amount) {
+        if (amount <= 0) {
+            return "Invalid amount. Please enter a positive value.";
+        }
+
+        try {
+            AccountComponent account = getAccountByNumber(accountNo);
+            if (account != null) {
+                if (account.getBalance() >= amount) {
+                    double newBalance = account.getBalance() - amount;
+                    updateAccountBalance(accountNo, newBalance);
+                    // Log the transaction
+                    logTransaction(accountNo, amount, "DEBIT");
+                    return "Amount debited successfully.";
+                } else {
+                    return "Insufficient balance.";
+                }
+            } else {
+                return "Account not found.";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "An error occurred during the debit operation.";
+        }
+    }
+
+    // Example of logging a transaction
+    private void logTransaction(long accountNo, double amount, String type) {
+        // Implement logic to log transaction details to a file, database, or audit system
+        System.out.println("Transaction logged: " + type + " - Account: " + accountNo + ", Amount: " + amount);
+    }
+
+    
+}

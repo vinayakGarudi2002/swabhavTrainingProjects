@@ -1,0 +1,28 @@
+package com.aurionpro.test;
+
+import java.sql.Connection;
+
+import com.aurionpro.database.DbConnection;
+
+public class Test {
+
+	public static void main(String[] args) {
+	
+		
+		 DbConnection dbConnection = new DbConnection();
+	        Connection connection = dbConnection.connectToDb();
+
+	        if (connection != null) {
+	           
+
+	        	
+
+
+	            dbConnection.closeConnection(connection);
+	        }
+		
+		
+
+	}
+
+}
