@@ -5,66 +5,10 @@
 <head>
     <meta charset="ISO-8859-1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="static/css/styles.css">
     <title>Perform Transaction</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-
-        .form-container {
-            width: 50%;
-            margin: 0 auto;
-            margin-top: 50px;
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .form-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        .form-group input[type="submit"], .form-group input[type="button"] {
-            width: 48%;
-            margin-right: 2%;
-        }
-
-        .form-group input[type="button"] {
-            margin-right: 0;
-        }
-
-        .error-message {
-            color: red;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .success-message {
-            color: green;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
+        
         #transfer-fields {
             display: none;
         }
@@ -108,9 +52,11 @@
             </div>
 
             <div class="form-group">
-                <input type="submit" value="Submit">
-                <input type="button" value="Cancel" onclick="window.location.href='customerOperation.jsp';">
+            <div class='buttons-container'>
+                <button type="submit" value="Submit" type="button">Submit</button>
+                <button type="button" value="Cancel" onclick="window.location.href='customerOperation.jsp';">Cancel</button>
             </div>
+               </div>
 
             <div class="error-message">
                 <% if (request.getAttribute("errorMessage") != null) { %>

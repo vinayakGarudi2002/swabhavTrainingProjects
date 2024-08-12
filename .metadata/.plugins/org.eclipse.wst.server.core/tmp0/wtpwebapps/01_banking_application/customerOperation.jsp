@@ -8,97 +8,39 @@
 <head>
     <meta charset="ISO-8859-1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" type="text/css" href="static/css/styles.css">
     <title>Customer Dashboard</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-
-        .dashboard-container {
+         .dashboard-container {
             width: 80%;
             margin: 0 auto;
             margin-top: 50px;
         }
-
-        .header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 5px 5px 0 0;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        .nav {
-            display: flex;
-            justify-content: space-around;
-            background-color: #333;
-            padding: 15px;
-            border-radius: 0 0 5px 5px;
-        }
-
-        .nav a {
-            color: white;
-            text-decoration: none;
-            padding: 14px 20px;
-            text-align: center;
+        
+               select, button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
             border-radius: 4px;
         }
 
-        .nav a:hover {
-            background-color: #ddd;
-            color: black;
-        }
-
-        .nav a.active {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .content {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .content h2 {
-            margin-top: 0;
-            font-size: 22px;
-        }
-        
-        .account-info {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #e7f1ff;
-            border-radius: 5px;
-            border: 1px solid #b3d9ff;
-        }
+       
     </style>
 </head>
 <body>
     <div class="dashboard-container">
-        <div class="header">
+        <div class="heade-dashboard-container">
             <h1>Welcome to Your Dashboard, Customer!</h1>
         </div>
-        <a href="customerDashboard.jsp"><button>Back</button></a>
+        
         <div class="nav">
             <a href="viewAccountTransaction.jsp">View Transactions</a>
             <a href="performTransaction.jsp">Perform Transaction</a>
             <a href="editProfile.jsp">Edit Profile</a>
         </div>
         
-          <form action="LogoutServlet" method="post">
-            <button type="submit">Logout</button>
-        </form>
+         
 
         <div class="content">
             <h2>Dashboard Overview</h2>
@@ -123,6 +65,12 @@
             <% 
                 } 
             %>
+        </div>
+        <div class="buttons-container">
+        <a href="customerDashboard.jsp"><button type="submit" >Back</button></a>
+         <form action="LogoutServlet" method="post">
+            <button type="submit">Logout</button>
+        </form>
         </div>
     </div>
 </body>

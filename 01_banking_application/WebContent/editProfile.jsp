@@ -5,6 +5,7 @@
 <%@ page import="com.aurionpro.operation.CustomerOperation" %>
 <%@ page import="javax.servlet.http.HttpSession" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,6 +18,8 @@
             
         }
     </script>
+    
+        <link rel="stylesheet" type="text/css" href="static/css/styles.css">
 </head>
 <body>
     <%
@@ -28,21 +31,16 @@
 
         String successMessage = (String) request.getAttribute("successMessage");
         String errorMessage = (String) request.getAttribute("errorMessage");
-
-        if (successMessage != null) {
-    %>
-        <p style="color:green;"><%= successMessage %></p>
+        %>
+       
     <%
-        } else if (errorMessage != null) {
-    %>
-        <p style="color:red;"><%= errorMessage %></p>
-    <%
-        }
+        
 
         if (customer != null) {
     %>
-        <h2>Edit Profile</h2>
-        <form action="EditProfileServlet" method="post">
+       
+        <form class="form-container" action="EditProfileServlet" method="post">
+         <h2>Edit Profile</h2>
             <label for="firstName">First Name:</label>
             <input type="text" id="firstName" name="firstName" value="<%= customer.getFirstName() %>" oninput="enablePasswordField()"><br><br>
             
@@ -53,14 +51,27 @@
             <label for="password" ">Password:</label>
             <input type="password" name="password" >
             </div><br><br>
-            
-            <input type="submit" id="submitButton" value="Submit" style="display:none;">
+            <div class='buttons-container'>
+            <button type="submit" id="submitButton" value="Submit" style="display:none;">Submit</button>
             <button type="button" id="cancelButton"  onclick="window.location.href='customerOperation.jsp'">Cancel</button>
+        </div>
+         <div>
+     <c:if test="${not empty errorMessage}">
+            <div class="error-message">${errorMessage}</div>
+        </c:if>
+    </div>
+    <div>
+     <c:if test="${not empty successMessage}">
+            <div class="succes-message">${successMessage}</div>
+        </c:if>
+    </div>
         </form>
+        
     <%
         } else {
             out.println("Customer not found.");
         }
     %>
+   
 </body>
 </html>

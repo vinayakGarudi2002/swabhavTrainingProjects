@@ -11,6 +11,27 @@
     <title>View Transactions</title>
     <link rel="stylesheet" type="text/css" href="static/css/styles.css">
 </head>
+<style>
+ a {
+            display: block;
+            width: 97%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+    .transaction-view-container{
+    padding: 13px;
+    margin-top: 363px;
+}
+</style>
 <body>
     <div class="transaction-view-container">
         <h2>View Transactions</h2>

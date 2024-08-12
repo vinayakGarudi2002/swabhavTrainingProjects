@@ -6,6 +6,25 @@
     <meta charset="UTF-8">
     <title>Add Customer - Banking App</title>
     <link rel="stylesheet" type="text/css" href="static/css/styles.css">
+     <style>
+     
+      a {
+            display: block;
+            width: 97%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+      
+    </style>
 </head>
 <body>
     <div class="form-container">
@@ -39,7 +58,7 @@
             </div>
         </c:if>
 
-        <a href="adminDashboard.jsp">Back to Dashboard</a>
+        <a href="adminDashboard.jsp" class="">Back to Dashboard</a>
     </div>
 </body>
 </html>

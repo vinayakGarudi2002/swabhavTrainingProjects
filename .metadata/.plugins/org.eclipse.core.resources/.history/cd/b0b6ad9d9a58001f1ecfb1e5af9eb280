@@ -1,0 +1,49 @@
+<%@page import="java.sql.Connection"%>
+<%@ page import="java.util.List" %>
+<%@ page import="com.aurionpro.model.CustomerView" %>
+<%@ page import="com.aurionpro.operation.CustomerViewOperation" %>
+<%@ page import="com.aurionpro.database.DbConnection" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>View Customers</title>
+    <link rel="stylesheet" type="text/css" href="static/css/styles.css">
+</head>
+<body>
+    <div class="customer-view-container">
+        <h2>View Customers</h2>
+        
+        <table>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Account Number</th>
+                <th>Balance</th>
+            </tr>
+            <%
+                try {
+                    Connection connection = DbConnection.connectToDb();
+                    CustomerViewOperation customerViewOperation = new CustomerViewOperation(connection);
+                    List<CustomerView> customerViews = customerViewOperation.fetchAllCustomerViews();
+                    
+                    for (CustomerView customer : customerViews) {
+                        out.println("<tr>");
+                        out.println("<td>" + customer.getFirstName() + "</td>");
+                        out.println("<td>" + customer.getLastName() + "</td>");
+                        out.println("<td>" + customer.getAccountNo() + "</td>");
+                        out.println("<td>" + customer.getBalance() + "</td>");
+                        out.println("</tr>");
+                    }
+                    
+                    connection.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            %>
+        </table>
+        <a href="adminDashboard.jsp">Back to Dashboard</a>
+    </div>
+</body>
+</html>

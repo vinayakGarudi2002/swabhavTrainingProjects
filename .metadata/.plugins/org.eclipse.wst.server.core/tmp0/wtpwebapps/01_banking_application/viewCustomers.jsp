@@ -10,11 +10,27 @@
     <meta charset="UTF-8">
     <title>View Customers</title>
     <link rel="stylesheet" type="text/css" href="static/css/styles.css">
+    <style>
+       a {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <div class="customer-view-container">
         <h2>View Customers</h2>
-        
         <table>
             <tr>
                 <th>First Name</th>

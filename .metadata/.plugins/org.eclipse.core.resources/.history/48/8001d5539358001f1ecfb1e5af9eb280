@@ -1,0 +1,32 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Banking App</title>
+    <link rel="stylesheet" type="text/css" href="static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <h2>Login</h2>
+            <form action="LoginServlet" method="post">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </form>
+            <c:if test="${not empty errorMessage}">
+                <div class="alert alert-danger">${errorMessage}</div>
+            </c:if>
+        </div>
+    </div>
+</body>
+</html>

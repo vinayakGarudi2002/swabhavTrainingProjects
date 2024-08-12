@@ -2,16 +2,16 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="hidden" key="selection"/>
+		<item value="getRequestDispatcher" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="getRequestDispatcher"/>
 			<item value="hidden"/>
 			<item value="submit"/>
 			<item value="error-message"/>
-			<item value="getRequestDispatcher"/>
 			<item value="addCustomer"/>
 			<item value="sessionPassword"/>
 			<item value="ce has been stopped already. Could not load []. The following stack trace is thrown for debugging purposes as well as to attempt to terminate the thread which caused the illegal access."/>

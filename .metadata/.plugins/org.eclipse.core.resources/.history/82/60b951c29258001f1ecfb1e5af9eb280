@@ -1,0 +1,83 @@
+/* Reset some default browser styles */
+body, h2, p, form, input, button {
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Set a background color for the entire page */
+body {
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Style the login container */
+.login-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Style the heading */
+.login-container h2 {
+    margin-bottom: 20px;
+    color: #333333;
+    text-align: center;
+}
+
+/* Style the form group */
+.form-group {
+    margin-bottom: 15px;
+}
+
+/* Style the labels */
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555555;
+}
+
+/* Style the input fields */
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+/* Style the submit button */
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #ffffff;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Button hover effect */
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Style the error message */
+.error-message {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #ffdddd;
+    border: 1px solid #ffaaaa;
+    color: #d8000c;
+    border-radius: 4px;
+    text-align: center;
+}

@@ -120,13 +120,32 @@ public class CustomerOperation {
 
     // Delete customer from the database
     public void deleteCustomerByEmail(String email) throws SQLException {
-        // Cascade delete should take care of userProfile and user tables if set correctly in DB schema
+        String selectUserIdSQL = "SELECT user_id FROM userProfile up JOIN profile p ON up.profile_id = p.profile_id WHERE p.email_id = ?";
         String deleteProfileSQL = "DELETE FROM profile WHERE email_id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(deleteProfileSQL)) {
-            stmt.setString(1, email);
-            stmt.executeUpdate();
+        String deleteUserSQL = "DELETE FROM user WHERE user_id = ?";
+
+        try (PreparedStatement selectStmt = connection.prepareStatement(selectUserIdSQL)) {
+            selectStmt.setString(1, email);
+            ResultSet rs = selectStmt.executeQuery();
+
+            if (rs.next()) {
+                int userId = rs.getInt("user_id");
+
+                // Delete the profile record
+                try (PreparedStatement deleteProfileStmt = connection.prepareStatement(deleteProfileSQL)) {
+                    deleteProfileStmt.setString(1, email);
+                    deleteProfileStmt.executeUpdate();
+                }
+
+                // Delete the user record
+                try (PreparedStatement deleteUserStmt = connection.prepareStatement(deleteUserSQL)) {
+                    deleteUserStmt.setInt(1, userId);
+                    deleteUserStmt.executeUpdate();
+                }
+            }
         }
     }
+
 
     public List<Integer> getCustomersWithoutAccount() {
         List<Integer> userIds = new ArrayList<>();
@@ -139,6 +158,36 @@ public class CustomerOperation {
                          "LEFT JOIN account a ON u.user_id = a.user_id " +
                          "JOIN roles r ON u.role_id = r.role_id " +
                          "WHERE a.account_no IS NULL AND r.role_name = 'customer'";
+            preparedStatement = connection.prepareStatement(sql);
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                userIds.add(resultSet.getInt("user_id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (resultSet != null) resultSet.close();
+                if (preparedStatement != null) preparedStatement.close();
+              
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return userIds;
+    }
+    
+    public List<Integer> getAnyCustomersWithWithoutAccount() {
+        List<Integer> userIds = new ArrayList<>();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            
+            String sql = "SELECT u.user_id FROM user u " +
+                         "JOIN roles r ON u.role_id = r.role_id " +
+                         "WHERE r.role_name = 'customer'";
             preparedStatement = connection.prepareStatement(sql);
             resultSet = preparedStatement.executeQuery();
 

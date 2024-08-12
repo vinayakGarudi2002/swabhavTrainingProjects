@@ -25,17 +25,17 @@ public class CustomerOperationTest {
             List<Integer> arr=customerOperation.getCustomersWithoutAccount();
             
             // get list of customer without account 
-            for(int a :  arr){
-            	System.out.println(a);
-            	System.out.println(customerOperation.getCustomerById(a).getDetails());
-            }
-            
+//            for(int a :  arr){
+//            	System.out.println(a);
+//            	System.out.println(customerOperation.getCustomerById(a).getDetails());
+//            }
+//            
             
 
-//            // Test: Create a new customer
-//            CustomerComponent newCustomer = new Customer("John", "Doe", "john.doe@example.com", "password123");
-//            customerOperation.createCustomer(newCustomer);
-//            System.out.println("Customer created successfully.");
+            // Test: Create a new customer
+            CustomerComponent newCustomer = new Customer("Sham", "Verma", "admin@gmail.com", "password123");
+            System.out.println(customerOperation.createCustomer(newCustomer));;
+            System.out.println("Customer created successfully.");
 //
 //            // Test: Read the customer by email
 //            CustomerComponent retrievedCustomer = customerOperation.getCustomerByEmail("john.doe@example.com");
@@ -56,8 +56,8 @@ public class CustomerOperationTest {
 //                System.out.println("Updated Customer: " + updatedRetrievedCustomer.getFirstName() + " " + updatedRetrievedCustomer.getLastName());
 //            }
 //
-//            // Test: Delete the customer by email
-//            customerOperation.deleteCustomerByEmail("john.doe@example.com");
+            // Test: Delete the customer by email
+//            customerOperation.deleteCustomerByEmail("admin@gmail.com");
 //            System.out.println("Customer deleted successfully.");
 //
 //            // Verify delete by attempting to retrieve the deleted customer

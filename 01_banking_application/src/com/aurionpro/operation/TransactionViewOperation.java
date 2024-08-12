@@ -53,12 +53,12 @@ public class TransactionViewOperation {
         String query = "SELECT t.transaction_id, t.sender_accno, t.reciver_accno, tt.transactionType_name, t.amount, t.date " +
                        "FROM transactions t " +
                        "JOIN transaction_types tt ON t.transactionType_id = tt.transactionType_id " +
-                       "WHERE  t.sender_accno = ? "+ 
+                       "WHERE  t.sender_accno = ? OR t.reciver_accno = ? "+ 
                        "ORDER BY t.transaction_id";
         
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setLong(1, accountNumber);
-          
+            statement.setLong(2, accountNumber);
             ResultSet resultSet = statement.executeQuery();
             
             while (resultSet.next()) {
