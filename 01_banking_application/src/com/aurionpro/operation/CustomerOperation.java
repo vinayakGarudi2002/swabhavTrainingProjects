@@ -17,7 +17,7 @@ public class CustomerOperation {
         this.connection = connection;
     }
 
-    // Check if an email already exists in the database
+ 
     private boolean isEmailExists(String email) throws SQLException {
         String checkEmailSQL = "SELECT COUNT(*) FROM profile WHERE email_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(checkEmailSQL)) {
@@ -30,7 +30,7 @@ public class CustomerOperation {
         return false;
     }
 
-    // Create a new customer in the database
+  // user / profile / userProfile
     public boolean createCustomer(CustomerComponent customer) throws SQLException {
         if (isEmailExists(customer.getEmail())) {
             return false; // Email already exists
@@ -42,7 +42,7 @@ public class CustomerOperation {
         try (PreparedStatement profileStmt = connection.prepareStatement(insertProfileSQL, PreparedStatement.RETURN_GENERATED_KEYS);
              PreparedStatement userStmt = connection.prepareStatement(insertUserSQL, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
-            // Insert into profile table
+        
             profileStmt.setString(1, customer.getFirstName());
             profileStmt.setString(2, customer.getLastName());
             profileStmt.setString(3, customer.getEmail());
@@ -55,10 +55,10 @@ public class CustomerOperation {
                 profileId = profileKeys.getInt(1);
             }
 
-            // Insert into user table
+     
             userStmt.setString(1, customer.getPassword());
-            // Assuming a default role for customer is '2'
-            userStmt.setInt(2, 2); // Hardcoded role_id for customer; can be dynamically handled if needed
+            //  role for customer is '2'
+            userStmt.setInt(2, 2); 
             userStmt.executeUpdate();
 
             // Get the generated user_id
@@ -81,7 +81,7 @@ public class CustomerOperation {
         }
     }
 
-    // Read customer details from the database using email
+    // user / profile / userProfile
     public CustomerComponent getCustomerByEmail(String email) throws SQLException {
         String selectSQL = "SELECT p.first_name, p.last_name, u.password FROM profile p " +
                            "JOIN userProfile up ON p.profile_id = up.profile_id " +
@@ -96,7 +96,7 @@ public class CustomerOperation {
         return null;
     }
 
-    // Update customer details in the database
+
     public void updateCustomer(CustomerComponent customer) throws SQLException {
         String updateProfileSQL = "UPDATE profile SET first_name = ?, last_name = ? WHERE email_id = ?";
         String updateUserSQL = "UPDATE user u JOIN userProfile up ON u.user_id = up.user_id " +
@@ -118,7 +118,7 @@ public class CustomerOperation {
         }
     }
 
-    // Delete customer from the database
+
     public void deleteCustomerByEmail(String email) throws SQLException {
         String selectUserIdSQL = "SELECT user_id FROM userProfile up JOIN profile p ON up.profile_id = p.profile_id WHERE p.email_id = ?";
         String deleteProfileSQL = "DELETE FROM profile WHERE email_id = ?";

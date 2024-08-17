@@ -42,8 +42,9 @@ public class AddAccountServlet extends HttpServlet {
 	    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	        String userId = request.getParameter("userId");
 	        String accountNumberStr = request.getParameter("accountNumber");
+	        String initialBalance = (request.getParameter("amount"));
 
-	        if (userId == null || userId.isEmpty() || accountNumberStr == null || accountNumberStr.isEmpty()) {
+	        if (userId == null || userId.isEmpty() || accountNumberStr == null || accountNumberStr.isEmpty()||initialBalance==null) {
 	            request.setAttribute("errorMessage", "User ID or Account Number is missing.");
 	            request.getRequestDispatcher("addAccount.jsp").forward(request, response);
 	            return;
@@ -57,11 +58,17 @@ public class AddAccountServlet extends HttpServlet {
 	            connection = DbConnection.connectToDb();
 	            AccountOperation accountOperation = new AccountOperation(connection);
 
-	            // Create a new account with an initial balance (e.g., 0.00)
-	            AccountComponent newAccount = new Account(accountNumber, 0.00, customerId);
+	           
+	            AccountComponent newAccount = new Account(accountNumber, Double.parseDouble(initialBalance), customerId);
 	            String message=accountOperation.createAccount(newAccount);
-
-	            request.setAttribute("succesMessage", "Account Succesfully Created");
+                // System.out.println(message);
+                 if(message.equals("true")) {
+                	 request.setAttribute("succesMessage", "Account Succesfully Created");
+                	 request.getRequestDispatcher("viewCustomers.jsp").forward(request, response);
+                 }else {
+                	 request.setAttribute("errorMessage", message);
+                 }
+	           
 	            request.getRequestDispatcher("addAccount.jsp").forward(request, response);
 	        } catch (Exception e) {
 	            e.printStackTrace();

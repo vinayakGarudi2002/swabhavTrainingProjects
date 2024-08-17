@@ -32,21 +32,21 @@ public class selectAccountServlet extends HttpServlet {
 	}
 
 	 protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	        // Retrieve the selected account number from the request
+	        
 	        String selectedAccount = request.getParameter("selectedAccount");
 
-	        // Validate and process the selected account
+	       
 	        if (selectedAccount != null && !selectedAccount.isEmpty()) {
 	            long accountNumber = Long.parseLong(selectedAccount);
 
-	            // Store the selected account in the session
+	           
 	            HttpSession session = request.getSession();
 	            session.setAttribute("selectedAccount", accountNumber);
 
-	            // Redirect to another page or provide feedback
+	         
 	            response.sendRedirect("customerOperation.jsp");
 	        } else {
-	            // Handle the case where no account is selected
+	            
 	            response.sendRedirect("customerDashboard.jsp");
 	        }
 	    }

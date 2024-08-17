@@ -11,7 +11,7 @@ public class DbConnection {
     private static final String DATABASE_USER = "root"; 
     private static final String DATABASE_PASSWORD = "root@123"; 
 
-    // Method to establish a connection to the database
+
     public static Connection connectToDb() {
         Connection connection = null;
         try {
@@ -32,7 +32,7 @@ public class DbConnection {
         return connection;
     }
     
-    // Close the connection
+
     public void closeConnection(Connection connection) {
         if (connection != null) {
             try {

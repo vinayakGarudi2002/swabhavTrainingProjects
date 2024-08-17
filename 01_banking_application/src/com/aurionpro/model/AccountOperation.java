@@ -12,12 +12,12 @@ public class AccountOperation {
 
     private Connection connection;
 
-    // Constructor to initialize the database connection
+ 
     public AccountOperation(Connection connection) {
         this.connection = connection;
     }
 
-    // Method to generate a random 12-digit account number
+   
     public long accountNumberGenerator() {
         Random random = new Random();
         long accountNumber = 100000000000L + (long) (random.nextDouble() * 900000000000L);
@@ -26,11 +26,15 @@ public class AccountOperation {
 
     // CRUD Operations
 
-    // Create a new account
+    
     public String createAccount(AccountComponent account) {
     	if(accountAlreadyExist(account.getAccountNo())){
     		return "Account Already Exist";
     	};
+    	
+    	if(account.getBalance()<500) {
+    		return "Minumum Balance need to at leat 500";
+    	}
     	
         String sql = "INSERT INTO account (account_no, balance, user_id) VALUES (?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -46,7 +50,7 @@ public class AccountOperation {
         }
     }
 
-    // Read an account by account number
+  
     public AccountComponent getAccountByNumber(long accountNo) {
         String sql = "SELECT * FROM account WHERE account_no = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -64,7 +68,7 @@ public class AccountOperation {
         return null;
     }
 
-    // Update an account's balance
+  
     public void updateAccountBalance(long accountNo, double newBalance) {
         String sql = "UPDATE account SET balance = ? WHERE account_no = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -77,7 +81,7 @@ public class AccountOperation {
         }
     }
 
-    // Delete an account by account number
+  
     public void deleteAccount(long accountNo) {
         String sql = "DELETE FROM account WHERE account_no = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -89,7 +93,7 @@ public class AccountOperation {
         }
     }
     
-    // Credit amount to account
+   
     public String credit(long accountNo, double amount) {
         if (amount <= 0) {
             return "Invalid amount. Please enter a positive value.";
@@ -111,7 +115,7 @@ public class AccountOperation {
         }
     }
 
-    // Debit amount from account
+  
     public String debit(long accountNo, double amount) {
         if (amount <= 0) {
             return "Invalid amount. Please enter a positive value.";
@@ -137,10 +141,14 @@ public class AccountOperation {
         }
     }
 
-    // Method to transfer amount from one account to another
+   
     public String accountTransferTransaction(long fromAccountNo, long toAccountNo, double amount) {
         if (amount <= 0) {
             return "Invalid amount. Please enter a positive value.";
+        }
+        
+        if(fromAccountNo == toAccountNo) {
+        	return "Invalid Input , Trying to Transfer to Same Account Number";
         }
 
         try {
@@ -185,7 +193,7 @@ public class AccountOperation {
         }
     }
 
-    // Method to add a transaction record to the transactions table
+  
     private void addTransaction(Long senderAccNo, Long receiverAccNo, double amount, int transactionTypeId) {
         String sql = "INSERT INTO transactions (sender_accno, reciver_accno, amount, date, transactionType_id) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {

@@ -48,7 +48,7 @@
 
             <div class="form-group">
                 <label for="amount">Amount:</label>
-                <input type="number" name="amount" id="amount" step="0.01" min="0" required>
+                <input type="number" name="amount" id="amount" step="0.01" min="1" required>
             </div>
 
             <div class="form-group">

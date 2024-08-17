@@ -3,6 +3,9 @@
 <%@ page import="com.aurionpro.model.TransactionView" %>
 <%@ page import="com.aurionpro.operation.TransactionViewOperation" %>
 <%@ page import="com.aurionpro.database.DbConnection" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.math.BigDecimal" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -12,9 +15,11 @@
     <link rel="stylesheet" type="text/css" href="static/css/styles.css">
 </head>
 <style>
- a {
+
+
+  a {
             display: block;
-            width: 97%;
+            width: 100%;
             padding: 10px;
             background-color: #007bff;
             color: white;
@@ -27,7 +32,8 @@
         a:hover {
             background-color: #0056b3;
         }
-    .transaction-view-container{
+/* Add your styling here */
+.transaction-view-container {
     padding: 13px;
     margin-top: 363px;
 }
@@ -36,6 +42,30 @@
     <div class="transaction-view-container">
         <h2>View Transactions</h2>
         
+        <form class="form-container" method="get">
+            <label for="typeOfTransaction">Type of Transaction:</label>
+            <select name="typeOfTransaction" id="typeOfTransaction">
+                <option value="">All</option>
+                <option value="credit">Credit</option>
+                <option value="debit">Debit</option>
+                <option value="transfer">Transfer</option>
+            </select>
+            
+            <label for="fromDate">From Date:</label>
+            <input type="date" id="fromDate" name="fromDate">
+            
+            <label for="toDate">To Date:</label>
+            <input type="date" id="toDate" name="toDate">
+            
+            <label for="minAmount">Min Amount:</label>
+            <input type="number" step="0.01" id="minAmount" name="minAmount">
+            
+            <label for="maxAmount">Max Amount:</label>
+            <input type="number" step="0.01" id="maxAmount" name="maxAmount">
+            
+            <button type="submit">Search</button>
+        </form>
+
         <table>
             <tr>
                 <th>Transaction ID</th>
@@ -49,13 +79,28 @@
                 try {
                     Connection connection = DbConnection.connectToDb();
                     TransactionViewOperation transactionViewOperation = new TransactionViewOperation(connection);
-                    List<TransactionView> transactionViews = transactionViewOperation.fetchAllTransactionViews();
                     
+                    String typeOfTransaction = request.getParameter("typeOfTransaction");
+                    String fromDateStr = request.getParameter("fromDate");
+                    String toDateStr = request.getParameter("toDate");
+                    String minAmountStr = request.getParameter("minAmount");
+                    String maxAmountStr = request.getParameter("maxAmount");
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    Date fromDate = (fromDateStr != null && !fromDateStr.isEmpty()) ? sdf.parse(fromDateStr) : null;
+                    Date toDate = (toDateStr != null && !toDateStr.isEmpty()) ? sdf.parse(toDateStr) : null;
+                    Double minAmount = (minAmountStr != null && !minAmountStr.isEmpty()) ? Double.parseDouble(minAmountStr) : null;
+                    Double maxAmount = (maxAmountStr != null && !maxAmountStr.isEmpty()) ? Double.parseDouble(maxAmountStr) : null;
+
+                    List<TransactionView> transactionViews = transactionViewOperation.fetchFilteredTransactionViews(
+                        typeOfTransaction, fromDate, toDate, minAmount, maxAmount 
+                    );
+
                     for (TransactionView transaction : transactionViews) {
                         out.println("<tr>");
                         out.println("<td>" + transaction.getTransactionId() + "</td>");
                         out.println("<td>" + transaction.getSenderAccount() + "</td>");
-                        String receiverAccount = transaction.getReceiverAccount() == 0 ? "self" :  Long.toString(transaction.getReceiverAccount());
+                        String receiverAccount = transaction.getReceiverAccount() == 0 ? "self" : Long.toString(transaction.getReceiverAccount());
                         out.println("<td>" + receiverAccount + "</td>");
                         out.println("<td>" + transaction.getTypeOfTransaction() + "</td>");
                         out.println("<td>" + transaction.getAmount() + "</td>");

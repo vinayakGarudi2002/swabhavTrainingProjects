@@ -43,25 +43,25 @@ public class LoginServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        // Assuming UserOperation class handles the login logic
+        
         UserOperation userOperation = new UserOperation();
         User user = userOperation.validateUser(email, password);
         
 
         if (user != null) {
-            // Create session and set user attributes
+            
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
             session.setAttribute("accounts",new AccountOperation(DbConnection.connectToDb()).getAccountNumbersByUserId(user.getUserId()) );
             
-            // Redirect based on role
+         
             if (user.getRole().equalsIgnoreCase("admin")) {
                 response.sendRedirect("adminDashboard.jsp");
             } else if (user.getRole().equalsIgnoreCase("customer")) {
                 response.sendRedirect("customerDashboard.jsp");
             }
         } else {
-            // If authentication fails, return to login page with error
+           
             request.setAttribute("errorMessage", "Invalid email or password. Please try again.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }

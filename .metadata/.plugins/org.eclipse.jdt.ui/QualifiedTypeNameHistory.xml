@@ -14,4 +14,6 @@
 <fullyQualifiedTypeName name="com.aurionpro.model.Customer"/>
 <fullyQualifiedTypeName name="com.aurionpro.model.PasswordValidator"/>
 <fullyQualifiedTypeName name="com.aurionpro.model.ValidationContext"/>
+<fullyQualifiedTypeName name="java.sql.SQLException"/>
+<fullyQualifiedTypeName name="com.aurionpro.model.AlphabeticValidator"/>
 </qualifiedTypeNameHistroy>

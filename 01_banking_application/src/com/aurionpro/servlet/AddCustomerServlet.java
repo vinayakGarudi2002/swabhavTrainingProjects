@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.aurionpro.database.DbConnection;
+import com.aurionpro.model.AlphabeticValidator;
 import com.aurionpro.model.Customer;
 import com.aurionpro.model.CustomerComponent;
 import com.aurionpro.model.EmailValidator;
@@ -49,6 +50,24 @@ public class AddCustomerServlet extends HttpServlet {
 	        String password = request.getParameter("password");
 	        
 	        ValidationContext context = new ValidationContext();
+	        context.setValidator(new AlphabeticValidator());
+	        String firstResult = context.validate(firstName);
+	        if(!firstResult.equals("true")) {
+	        	request.setAttribute("errorMessage",firstResult );
+	        	 request.getRequestDispatcher("addCustomer.jsp").forward(request, response);
+	        	return;
+	        }
+	        
+	        String secondResult = context.validate(lastName);
+	        if(!secondResult.equals("true")) {
+	        	request.setAttribute("errorMessage",secondResult );
+	        	 request.getRequestDispatcher("addCustomer.jsp").forward(request, response);
+	            return;
+	        }
+	        
+	        
+	        
+	        
 	        context.setValidator(new EmailValidator());
 	        String emailResult = context.validate(email);
 	        if(!emailResult.equals("true")) {
@@ -75,7 +94,7 @@ public class AddCustomerServlet extends HttpServlet {
 		              
 		                request.setAttribute("succesMessage", "Customer Succesfully Created");
 		            } else {
-		                // Email already exists
+		               
 		                request.setAttribute("errorMessage", "Email already exists. Please use a different email.");
 		               
 		            }

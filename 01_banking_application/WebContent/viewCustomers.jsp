@@ -26,11 +26,43 @@
         a:hover {
             background-color: #0056b3;
         }
+
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        .search-bar input[type="text"] {
+            padding: 8px;
+            width: 200px;
+            font-size: 16px;
+        }
+
+        .search-bar input[type="submit"] {
+            padding: 8px 16px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .search-bar input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
     <div class="customer-view-container">
         <h2>View Customers</h2>
+        
+        <div class="search-bar">
+            <form action="viewCustomers.jsp" method="get">
+                <input type="text" name="searchQuery" placeholder="Search by Name or Account No" />
+                <input type="submit" value="Search" />
+            </form>
+        </div>
+        
         <table>
             <tr>
                 <th>First Name</th>
@@ -39,10 +71,12 @@
                 <th>Balance</th>
             </tr>
             <%
+                String searchQuery = request.getParameter("searchQuery");
+
                 try {
                     Connection connection = DbConnection.connectToDb();
                     CustomerViewOperation customerViewOperation = new CustomerViewOperation(connection);
-                    List<CustomerView> customerViews = customerViewOperation.fetchAllCustomerViews();
+                    List<CustomerView> customerViews = customerViewOperation.fetchCustomerViewsBySearch(searchQuery);
                     
                     for (CustomerView customer : customerViews) {
                         out.println("<tr>");

@@ -1,0 +1,120 @@
+package com.aurionpro.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.aurionpro.database.DbConnection;
+import com.aurionpro.model.AlphabeticValidator;
+import com.aurionpro.model.Customer;
+import com.aurionpro.model.CustomerComponent;
+import com.aurionpro.model.EmailValidator;
+import com.aurionpro.model.PasswordValidator;
+import com.aurionpro.model.ValidationContext;
+import com.aurionpro.operation.CustomerOperation;
+
+/**
+ * Servlet implementation class AddCustomerServlet
+ */
+@WebServlet("/AddCustomerServlet")
+public class AddCustomerServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public AddCustomerServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		response.getWriter().append("Served at: ").append(request.getContextPath());
+	}
+
+	 @Override
+	    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	        String firstName = request.getParameter("firstName");
+	        String lastName = request.getParameter("lastName");
+	        String email = request.getParameter("email");
+	        String password = request.getParameter("password");
+	        
+	        ValidationContext context = new ValidationContext();
+	        context.setValidator(new AlphabeticValidator());
+	        String firstResult = context.validate(firstName);
+	        if(!firstResult.equals("true")) {
+	        	request.setAttribute("errorMessage",firstResult );
+	        	 request.getRequestDispatcher("editProfile.jsp").forward(request, response);
+	        	return;
+	        }
+	        
+	        String secondResult = context.validate(lastName);
+	        if(!secondResult.equals("true")) {
+	        	request.setAttribute("errorMessage",secondResult );
+	        	 request.getRequestDispatcher("editProfile.jsp").forward(request, response);
+	            return;
+	        }
+	        
+	        
+	        
+	        
+	        context.setValidator(new EmailValidator());
+	        String emailResult = context.validate(email);
+	        if(!emailResult.equals("true")) {
+	        	request.setAttribute("errorMessage",emailResult );
+	        	 
+	        }
+	        context.setValidator(new PasswordValidator());
+	        String passwordResult = context.validate(password);
+	        if(!passwordResult.equals("true")) {
+	        	request.setAttribute("errorMessage",passwordResult );
+	        	
+	        }
+
+	       if(passwordResult.equals("true") && emailResult.equals("true")) {
+	    	   CustomerComponent customer = new Customer(firstName, lastName, email, password);
+
+		        Connection connection = null;
+		        try {
+		            connection = DbConnection.connectToDb();
+		            CustomerOperation customerOperation = new CustomerOperation(connection);
+
+		            boolean isCreated = customerOperation.createCustomer(customer);
+		            if (isCreated) {
+		              
+		                request.setAttribute("succesMessage", "Customer Succesfully Created");
+		            } else {
+		               
+		                request.setAttribute("errorMessage", "Email already exists. Please use a different email.");
+		               
+		            }
+		            
+		           
+		        } catch (SQLException e) {
+		            e.printStackTrace();
+		            request.setAttribute("errorMessage", "An error occurred while adding the customer. Please try again.");
+		           
+		        } finally {
+		            if (connection != null) {
+		                try {
+		                    connection.close();
+		                } catch (SQLException e) {
+		                    e.printStackTrace();
+		                }
+		            }
+		        }
+	       }
+	       
+	      request.getRequestDispatcher("addCustomer.jsp").forward(request, response);
+	    }
+}

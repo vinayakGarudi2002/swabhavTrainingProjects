@@ -45,7 +45,7 @@ public class PerformTransactionServlet extends HttpServlet {
 	            receiverAccountNo = Long.parseLong(request.getParameter("receiverAccountNo"));
 	        }
            
-	        // Assuming user session has the current account number
+	       
 	        long currentAccountNo = (Long) request.getSession().getAttribute("selectedAccount");
 
 	        try (Connection connection =  DbConnection.connectToDb()) {

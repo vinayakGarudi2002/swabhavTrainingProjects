@@ -1,0 +1,296 @@
+package com.aurionpro.operation;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.aurionpro.model.TransactionView;
+
+public class TransactionViewOperation {
+    private Connection connection;
+
+    public TransactionViewOperation(Connection connection) {
+        this.connection = connection;
+    }
+
+    // Method to fetch all transaction views
+    public List<TransactionView> fetchAllTransactionViews() {
+        List<TransactionView> transactionViews = new ArrayList<>();
+        String query = "SELECT t.transaction_id, t.sender_accno, t.reciver_accno, tt.transactionType_name, t.amount, t.date " +
+                       "FROM transactions t " +
+                       "JOIN transaction_types tt ON t.transactionType_id = tt.transactionType_id "+
+                        "ORDER BY t.transaction_id";
+        
+        
+        
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+            
+            while (resultSet.next()) {
+                int transactionId = resultSet.getInt("transaction_id");
+                long senderAccount = resultSet.getLong("sender_accno");
+                long receiverAccount = resultSet.getLong("reciver_accno");
+                String typeOfTransaction = resultSet.getString("transactionType_name");
+                double amount = resultSet.getDouble("amount");
+                Date transactionDate = resultSet.getDate("date");
+                
+                TransactionView transactionView = new TransactionView(transactionId, senderAccount, receiverAccount, typeOfTransaction, amount, transactionDate);
+                transactionViews.add(transactionView);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return transactionViews;
+    }
+
+    // Method to fetch transactions based on a given account number
+    public List<TransactionView> fetchTransactionsByAccountNumber(long accountNumber) {
+        List<TransactionView> transactionViews = new ArrayList<>();
+        String query = "SELECT t.transaction_id, t.sender_accno, t.reciver_accno, tt.transactionType_name, t.amount, t.date " +
+                       "FROM transactions t " +
+                       "JOIN transaction_types tt ON t.transactionType_id = tt.transactionType_id " +
+                       "WHERE  t.sender_accno = ? OR t.reciver_accno = ? "+ 
+                       "ORDER BY t.transaction_id";
+        
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setLong(1, accountNumber);
+            statement.setLong(2, accountNumber);
+            ResultSet resultSet = statement.executeQuery();
+            
+            while (resultSet.next()) {
+                int transactionId = resultSet.getInt("transaction_id");
+                long senderAccount = resultSet.getLong("sender_accno");
+                long receiverAccount = resultSet.getLong("reciver_accno");
+                String type="Credit";
+                if(resultSet.getString("transactionType_name").equalsIgnoreCase("Transfer")) {
+                	if(senderAccount==accountNumber) {
+                		type = "Debit";
+                	}
+                }
+                String typeOfTransaction = type;
+                double amount = resultSet.getDouble("amount");
+                Date transactionDate = resultSet.getDate("date");
+                
+                TransactionView transactionView = new TransactionView(transactionId, senderAccount, receiverAccount, typeOfTransaction, amount, transactionDate);
+                transactionViews.add(transactionView);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return transactionViews;
+    }
+// filter transactions
+    public List<TransactionView> fetchFilteredTransactionViews(String typeOfTransaction, Date fromDate, Date toDate, Double minAmount, Double maxAmount) throws SQLException {
+        List<TransactionView> transactionViews = new ArrayList<>();
+        
+        // Base query
+        StringBuilder queryBuilder = new StringBuilder(
+            "SELECT t.transaction_id, t.sender_accno, t.reciver_accno, tt.transactionType_name AS type_of_transaction, " +
+            "t.amount, t.date AS transaction_date " +
+            "FROM transactions t " +
+            "JOIN transaction_types tt ON t.transactionType_id = tt.transactionType_id " +
+            "WHERE 1=1" // Adding 1=1 to simplify appending further conditions
+        );
+        
+        // Add filtering conditions
+        if (typeOfTransaction != null && !typeOfTransaction.isEmpty()) {
+            queryBuilder.append(" AND tt.transactionType_name = ?");
+        }
+        
+        if (fromDate != null) {
+            queryBuilder.append(" AND t.date >= ?");
+        }
+        
+        if (toDate != null) {
+            queryBuilder.append(" AND t.date <= ?");
+        }
+        
+        if (minAmount != null) {
+            queryBuilder.append(" AND t.amount >= ?");
+        }
+        
+        if (maxAmount != null) {
+            queryBuilder.append(" AND t.amount <= ?");
+        }
+        
+        // Add sorting condition
+        queryBuilder.append(" ORDER BY ");
+        
+        if ("credit".equalsIgnoreCase(typeOfTransaction)) {
+            queryBuilder.append("t.amount DESC, ");
+        } else if ("debit".equalsIgnoreCase(typeOfTransaction)) {
+            queryBuilder.append("t.amount ASC, ");
+        }
+        
+        queryBuilder.append("t.date , t.amount "); // Default sorting by date and amount
+        
+        // Prepare the statement
+        String query = queryBuilder.toString();
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            
+            // Set the parameters
+            int paramIndex = 1;
+            
+            if (typeOfTransaction != null && !typeOfTransaction.isEmpty()) {
+                preparedStatement.setString(paramIndex++, typeOfTransaction);
+            }
+            
+            if (fromDate != null) {
+                preparedStatement.setDate(paramIndex++, new java.sql.Date(fromDate.getTime()));
+            }
+            
+            if (toDate != null) {
+                preparedStatement.setDate(paramIndex++, new java.sql.Date(toDate.getTime()));
+            }
+            
+            if (minAmount != null) {
+                preparedStatement.setDouble(paramIndex++, minAmount);
+            }
+            
+            if (maxAmount != null) {
+                preparedStatement.setDouble(paramIndex++, maxAmount);
+            }
+            
+            // Execute the query
+            ResultSet resultSet = preparedStatement.executeQuery();
+            
+            // Process the result set
+            while (resultSet.next()) {
+                TransactionView transactionView = new TransactionView(
+                    resultSet.getInt("transaction_id"),
+                    resultSet.getLong("sender_accno"),
+                    resultSet.getLong("reciver_accno"),
+                    resultSet.getString("type_of_transaction"),
+                    resultSet.getDouble("amount"),
+                    resultSet.getTimestamp("transaction_date")
+                );
+                transactionViews.add(transactionView);
+            }
+            
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+        }
+        
+        return transactionViews;
+    }
+
+
+    public List<TransactionView> fetchFilteredAccountTransactionViews(String typeOfTransaction, Date fromDate, Date toDate, Double minAmount, Double maxAmount, long accountNumber) throws SQLException {
+        List<TransactionView> transactionViews = new ArrayList<>();
+        StringBuilder query = new StringBuilder(
+            "SELECT t.transaction_id, t.sender_accno, t.reciver_accno, tt.transactionType_name, t.amount, t.date " +
+            "FROM transactions t " +
+            "JOIN transaction_types tt ON t.transactionType_id = tt.transactionType_id " +
+            "WHERE (t.sender_accno = ? OR t.reciver_accno = ?) "
+        );
+
+        // Add type filtering logic
+        if ("All".equalsIgnoreCase(typeOfTransaction)) {
+        	
+        	typeOfTransaction=null;
+        	
+        }
+        if ("Debit".equalsIgnoreCase(typeOfTransaction)) {
+            query.append("AND (t.sender_accno = ? OR (t.sender_accno = ? AND t.reciver_accno IS NOT NULL AND tt.transactionType_name = 'Transfer')) ");
+        } else if ("Credit".equalsIgnoreCase(typeOfTransaction)) {
+            query.append("AND (t.reciver_accno = ? OR (t.reciver_accno = ? AND t.sender_accno IS NOT NULL AND tt.transactionType_name = 'Transfer')) ");
+        }
+
+        // Add date range filtering
+        if (fromDate != null && toDate != null) {
+            query.append("AND t.date BETWEEN ? AND ? ");
+        } else if (fromDate != null) {
+            query.append("AND t.date >= ? ");
+        } else if (toDate != null) {
+            query.append("AND t.date <= ? ");
+        }
+
+        // Add amount range filtering
+        if (minAmount != null && maxAmount != null) {
+            query.append("AND t.amount BETWEEN ? AND ? ");
+        } else if (minAmount != null) {
+            query.append("AND t.amount >= ? ");
+        } else if (maxAmount != null) {
+            query.append("AND t.amount <= ? ");
+        }
+
+        query.append("ORDER BY t.transaction_id");
+
+        try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
+            int paramIndex = 1;
+
+            // Set account numbers
+            statement.setLong(paramIndex++, accountNumber);
+            statement.setLong(paramIndex++, accountNumber);
+
+            if ("Debit".equalsIgnoreCase(typeOfTransaction)) {
+                statement.setLong(paramIndex++, accountNumber);
+                statement.setLong(paramIndex++, accountNumber);
+            } else if ("Credit".equalsIgnoreCase(typeOfTransaction)) {
+                statement.setLong(paramIndex++, accountNumber);
+                statement.setLong(paramIndex++, accountNumber);
+            }
+
+            // Set date range
+            if (fromDate != null) {
+                statement.setDate(paramIndex++,  new java.sql.Date(fromDate.getTime()));
+            }
+            if (toDate != null) {
+                statement.setDate(paramIndex++,  new java.sql.Date(toDate.getTime()));
+            }
+
+            // Set amount range
+            if (minAmount != null) {
+                statement.setDouble(paramIndex++, minAmount);
+            }
+            if (maxAmount != null) {
+                statement.setDouble(paramIndex++, maxAmount);
+            }
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                int transactionId = resultSet.getInt("transaction_id");
+                long senderAccount = resultSet.getLong("sender_accno");
+                long receiverAccount = resultSet.getLong("reciver_accno");
+                String transactionTypeName = resultSet.getString("transactionType_name");
+               
+                	String finalTransactionType = transactionTypeName;
+              
+
+              
+
+                if ("Transfer".equalsIgnoreCase(transactionTypeName)) {
+                    if ( senderAccount == accountNumber) {
+                        finalTransactionType = "Debit";
+                    } else if (receiverAccount == accountNumber) {
+                        finalTransactionType = "Credit";
+                    } 
+                }
+
+                double amount = resultSet.getDouble("amount");
+                Date transactionDate = resultSet.getDate("date");
+
+                TransactionView transactionView = new TransactionView(transactionId, senderAccount, receiverAccount, finalTransactionType, amount, transactionDate);
+                transactionViews.add(transactionView);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+        return transactionViews;
+    }
+
+
+}

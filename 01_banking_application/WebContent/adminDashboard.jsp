@@ -27,6 +27,12 @@
         <form action="LogoutServlet" method="post">
             <button type="submit">Logout</button>
         </form>
+        
+          <c:if test="${not empty successMessage}">
+            <div class="success-message">
+                <c:out value="${succesMessage}"/>
+            </div>
+        </c:if>
     </div>
 </body>
 </html>

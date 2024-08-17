@@ -7,14 +7,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Add Account</title>
     <link rel="stylesheet" type="text/css" href="static/css/styles.css">
-    <style>
-
-    </style>
 </head>
 <body>
     <div class="form-container">
@@ -28,8 +25,9 @@
                     try {
                         Connection connection = DbConnection.connectToDb();
                         CustomerOperation customerOperation = new CustomerOperation(connection);
+                      
                         List<Integer> userIdsWithoutAccount = customerOperation.getCustomersWithoutAccount();
-
+                        
                         for (int userId : userIdsWithoutAccount) {
                             out.println("<option value='" + userId + "'>" + userId + "</option>");
                         }
@@ -41,7 +39,7 @@
             </select>
         </form>
 
-        <%
+        <% 
             String selectedUserId = request.getParameter("userId");
             if (selectedUserId != null && !selectedUserId.isEmpty()) {
                 try {
@@ -50,25 +48,31 @@
                     CustomerComponent customer = customerOperation.getCustomerById(Integer.parseInt(selectedUserId));
 
                     if (customer != null) {
-                        out.println("<h3>Customer Details:</h3>");
-                        out.println("First Name: " + customer.getFirstName() + "<br>");
-                        out.println("Last Name: " + customer.getLastName() + "<br>");
-                        out.println("Email: " + customer.getEmail() + "<br>");
+        %>
+                        <h3>Customer Details:</h3>
+                        <p>First Name: <%= customer.getFirstName() %></p>
+                        <p>Last Name: <%= customer.getLastName() %></p>
+                        <p>Email: <%= customer.getEmail() %></p>
 
-                        // Generate account number
-                        AccountOperation accountOperation = new AccountOperation(connection);
-                        long newAccountNo = accountOperation.accountNumberGenerator();
-                        String generatedAccountNumber = String.valueOf(newAccountNo);
+                        <form class="form-container" method="POST" action="AddAccountServlet">
+                            <input type="hidden" name="userId" value="<%= selectedUserId %>">
+                          
 
-                        out.println("<form class='form-container' method='POST' action='AddAccountServlet'>");
-                        out.println("<input type='hidden' name='userId' value='" + selectedUserId + "'>");
-                        out.println("<label for='accountNumber'>Generated Account Number:</label>");
-                        out.println("<input type='text' id='accountNumber' name='accountNumber' value='" + generatedAccountNumber + "' readonly><br><br>");
-                        out.println("<div class='buttons-container'>");
-                        out.println("<button type='submit'>Submit</button>");
-                        out.println("<button type='button' onclick=\"window.location.href='adminDashboard.jsp';\">Cancel</button>");
-                        out.println("</div>");
-                        out.println("</form>");
+                            <% 
+                                AccountOperation accountOperation = new AccountOperation(connection);
+                                long newAccountNo = accountOperation.accountNumberGenerator();
+                                String generatedAccountNumber = String.valueOf(newAccountNo);
+                            %>
+                            <label for="accountNumber">Generated Account Number:</label>
+                            <input type="text" id="accountNumber" name="accountNumber" value="<%= generatedAccountNumber %>" readonly>
+                             <label for="amount">Initial Balance:</label>
+                            <input type="number" name="amount" id="amount" value="<%= 500 %>" step="0.01" min="500" required>
+                            <div class="buttons-container">
+                                <button type="submit">Submit</button>
+                                <button type="button" onclick="window.location.href='adminDashboard.jsp';">Cancel</button>
+                            </div>
+                        </form>
+        <% 
                     }
                     connection.close();
                 } catch (Exception e) {
@@ -86,7 +90,7 @@
 
         <c:if test="${not empty successMessage}">
             <div class="success-message">
-                <c:out value="${successMessage}"/>
+                <c:out value="${succesMessage}"/>
             </div>
         </c:if>
     </div>

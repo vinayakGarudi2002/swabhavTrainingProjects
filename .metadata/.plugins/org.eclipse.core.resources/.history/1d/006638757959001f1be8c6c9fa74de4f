@@ -1,0 +1,144 @@
+package com.aurionpro.operation;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.aurionpro.model.TransactionView;
+
+public class TransactionViewOperation {
+    private Connection connection;
+
+    public TransactionViewOperation(Connection connection) {
+        this.connection = connection;
+    }
+
+    // Method to fetch all transaction views
+    public List<TransactionView> fetchAllTransactionViews() {
+        List<TransactionView> transactionViews = new ArrayList<>();
+        String query = "SELECT t.transaction_id, t.sender_accno, t.reciver_accno, tt.transactionType_name, t.amount, t.date " +
+                       "FROM transactions t " +
+                       "JOIN transaction_types tt ON t.transactionType_id = tt.transactionType_id "+
+                        "ORDER BY t.transaction_id";
+        
+        
+        
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+            
+            while (resultSet.next()) {
+                int transactionId = resultSet.getInt("transaction_id");
+                long senderAccount = resultSet.getLong("sender_accno");
+                long receiverAccount = resultSet.getLong("reciver_accno");
+                String typeOfTransaction = resultSet.getString("transactionType_name");
+                double amount = resultSet.getDouble("amount");
+                Date transactionDate = resultSet.getDate("date");
+                
+                TransactionView transactionView = new TransactionView(transactionId, senderAccount, receiverAccount, typeOfTransaction, amount, transactionDate);
+                transactionViews.add(transactionView);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return transactionViews;
+    }
+
+    // Method to fetch transactions based on a given account number
+    public List<TransactionView> fetchTransactionsByAccountNumber(long accountNumber) {
+        List<TransactionView> transactionViews = new ArrayList<>();
+        String query = "SELECT t.transaction_id, t.sender_accno, t.reciver_accno, tt.transactionType_name, t.amount, t.date " +
+                       "FROM transactions t " +
+                       "JOIN transaction_types tt ON t.transactionType_id = tt.transactionType_id " +
+                       "WHERE  t.sender_accno = ? OR t.reciver_accno = ? "+ 
+                       "ORDER BY t.transaction_id";
+        
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setLong(1, accountNumber);
+            statement.setLong(2, accountNumber);
+            ResultSet resultSet = statement.executeQuery();
+            
+            while (resultSet.next()) {
+                int transactionId = resultSet.getInt("transaction_id");
+                long senderAccount = resultSet.getLong("sender_accno");
+                long receiverAccount = resultSet.getLong("reciver_accno");
+                String type="Credit";
+                if(resultSet.getString("transactionType_name").equalsIgnoreCase("Transfer")) {
+                	if(senderAccount==accountNumber) {
+                		type = "Debit";
+                	}
+                }
+                String typeOfTransaction = type;
+                double amount = resultSet.getDouble("amount");
+                Date transactionDate = resultSet.getDate("date");
+                
+                TransactionView transactionView = new TransactionView(transactionId, senderAccount, receiverAccount, typeOfTransaction, amount, transactionDate);
+                transactionViews.add(transactionView);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return transactionViews;
+    }
+
+    public List<TransactionView> fetchFilteredTransactionViews(String typeOfTransaction, Date fromDate, Date toDate, BigDecimal minAmount, BigDecimal maxAmount) throws SQLException {
+        List<TransactionView> transactionViews = new ArrayList<>();
+        String query = "SELECT * FROM transactions_view WHERE 1=1";
+        
+        if (typeOfTransaction != null && !typeOfTransaction.isEmpty()) {
+            query += " AND type_of_transaction = ?";
+        }
+        if (fromDate != null) {
+            query += " AND transaction_date >= ?";
+        }
+        if (toDate != null) {
+            query += " AND transaction_date <= ?";
+        }
+        if (minAmount != null) {
+            query += " AND amount >= ?";
+        }
+        if (maxAmount != null) {
+            query += " AND amount <= ?";
+        }
+        
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        
+        int paramIndex = 1;
+        if (typeOfTransaction != null && !typeOfTransaction.isEmpty()) {
+            preparedStatement.setString(paramIndex++, typeOfTransaction);
+        }
+        if (fromDate != null) {
+            preparedStatement.setDate(paramIndex++, new java.sql.Date(fromDate.getTime()));
+        }
+        if (toDate != null) {
+            preparedStatement.setDate(paramIndex++, new java.sql.Date(toDate.getTime()));
+        }
+        if (minAmount != null) {
+            preparedStatement.setBigDecimal(paramIndex++, minAmount);
+        }
+        if (maxAmount != null) {
+            preparedStatement.setBigDecimal(paramIndex++, maxAmount);
+        }
+        
+        ResultSet resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+            TransactionView transactionView = new TransactionView(
+                resultSet.getInt("transaction_id"),
+                resultSet.getLong("sender_accno"),
+                resultSet.getLong("reciver_accno"),
+                resultSet.getString("type_of_transaction"),
+                resultSet.getDouble("amount"),
+                resultSet.getTimestamp("transaction_date")
+            );
+            transactionViews.add(transactionView);
+        }
+        return transactionViews;
+    }
+
+
+
+}

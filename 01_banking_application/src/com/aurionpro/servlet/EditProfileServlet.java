@@ -12,9 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.aurionpro.database.DbConnection;
+import com.aurionpro.model.AlphabeticValidator;
 import com.aurionpro.model.Customer;
 import com.aurionpro.model.CustomerComponent;
+import com.aurionpro.model.EmailValidator;
 import com.aurionpro.model.User;
+import com.aurionpro.model.ValidationContext;
 import com.aurionpro.operation.CustomerOperation;
 
 @WebServlet("/EditProfileServlet")
@@ -36,6 +39,22 @@ public class EditProfileServlet extends HttpServlet {
         String lastName = request.getParameter("lastName");
         String password = request.getParameter("password");
 
+        ValidationContext context = new ValidationContext();
+        context.setValidator(new AlphabeticValidator());
+        String firstResult = context.validate(firstName);
+        if(!firstResult.equals("true")) {
+        	request.setAttribute("errorMessage",firstResult );
+        	 request.getRequestDispatcher("editProfile.jsp").forward(request, response);
+        	
+        }
+        String secondResult = context.validate(lastName);
+        if(!secondResult.equals("true")) {
+        	request.setAttribute("errorMessage",secondResult );
+        	 request.getRequestDispatcher("editProfile.jsp").forward(request, response);
+        
+        }
+        
+        
         CustomerOperation customerOperation = new CustomerOperation(DbConnection.connectToDb());
         CustomerComponent customer = customerOperation.getCustomerById(userId);
 
